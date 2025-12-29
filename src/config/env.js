@@ -22,7 +22,7 @@ const EnvSchema = z.object({
 
   CORS_ORIGINS: z
     .string()
-    .default('http://localhost:3000,https://okpups.store,https://www.okpups.store')
+    .default('http://localhost:3000,https://okpups.store,https://www.okpups.store,https://okpups.vercel.app')
     .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
 
   LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(5),
