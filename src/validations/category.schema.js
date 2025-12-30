@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createCategorySchema = z.object({
   name: z.string().min(1),
-  type: z.enum(['pet', 'livestock']),
+  type: z.enum(['pet', 'livestock', 'product']),
   species: z.string().min(1),
   slug: z
     .string()
