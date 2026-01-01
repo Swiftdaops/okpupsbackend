@@ -27,7 +27,8 @@ const EnvSchema = z.object({
     .default(
       'http://localhost:3000,' +
       'https://okpupsbackend-7gv3.onrender.com,' +
-      'https://okpups-njmd.vercel.app' 
+      'https://okpups-njmd.vercel.app,' 
+      'https://okpups.store'
     )
     .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
 
