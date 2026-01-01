@@ -8,6 +8,7 @@
     "dev": "DISABLE_RATE_LIMIT=true nodemon src/server.js",
     "start": "node src/server.js",
     "create-admin": "node src/scripts/createAdmin.js",
+    "seed-dogs": "node src/scripts/seedDogs.js",
     "seed-categories": "node src/scripts/seedCategories.js",
     "assign-dog-foods": "node src/scripts/assignDogFoodCategory.js",
     "seed-vet-products": "node src/scripts/seedVetProductCategories.js",
