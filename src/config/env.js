@@ -27,7 +27,7 @@ const EnvSchema = z.object({
     .default(
       'http://localhost:3000,' +
       'https://okpupsbackend-7gv3.onrender.com,' +
-      'https://okpups.vercel.app'
+      'https://okpups.vercel.app/' 
     )
     .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
 
@@ -66,7 +66,12 @@ if (computed.NODE_ENV === 'production') {
   }
   // Ensure CORS origins include the production frontend if not already provided
   if (!Object.prototype.hasOwnProperty.call(process.env, 'CORS_ORIGINS')) {
-    computed.CORS_ORIGINS = ['https://okpups.store', 'https://www.okpups.store', 'http://localhost:3000'];
+    computed.CORS_ORIGINS = [
+      'https://okpups.vercel.app',
+      'https://okpups.store',
+      'https://www.okpups.store',
+      'http://localhost:3000'
+    ];
   }
 }
 
