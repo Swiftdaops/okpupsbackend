@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
+// Helper to handle various boolean-like strings from environment variables
 const boolish = z
   .string()
   .transform((v) => v.toLowerCase())
@@ -20,9 +21,15 @@ const EnvSchema = z.object({
   COOKIE_SECURE: boolish.default('false'),
   COOKIE_SAMESITE: z.enum(['strict', 'lax', 'none']).default('strict'),
 
+  // Added your new URL here and removed trailing slashes for cleaner matching
   CORS_ORIGINS: z
     .string()
-    .default('http://localhost:3000,https://okpupsbackend-7gv3.onrender.com,https://okpups.vercel.app')
+    .default(
+      'http://localhost:3000,' +
+      'https://okpupsbackend-7gv3.onrender.com,' +
+      'https://okpups.vercel.app,' +
+      'https://okpups-njmd.vercel.app' 
+    )
     .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
 
   LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(5),
@@ -37,10 +44,15 @@ const EnvSchema = z.object({
   ADMIN_PASSWORD: z.string().min(8).optional()
 });
 
+// Validate process.env against the schema
 const parsed = EnvSchema.safeParse(process.env);
+
 if (!parsed.success) {
   // eslint-disable-next-line no-console
-  console.error('Invalid environment variables:', parsed.error.flatten().fieldErrors);
+  console.error(
+    '❌ Invalid environment variables:', 
+    JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
+  );
   process.exit(1);
 }
 
