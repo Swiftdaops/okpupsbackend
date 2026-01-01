@@ -38,7 +38,15 @@ export function createApp() {
     cors({
       origin(origin, cb) {
         if (!origin) return cb(null, true);
-        if (env.CORS_ORIGINS.includes(origin)) return cb(null, true);
+        try {
+          if (env.CORS_ORIGINS.includes(origin)) return cb(null, true);
+          // Allow common production frontends if not explicitly configured
+          const host = new URL(origin).hostname;
+          if (host === 'okpups.vercel.app' || host.endsWith('.vercel.app')) return cb(null, true);
+          if (host === 'okpups.store' || host.endsWith('.okpups.store')) return cb(null, true);
+        } catch (e) {
+          // fall through to block
+        }
         return cb(new Error(`CORS blocked for origin: ${origin}`));
       },
       credentials: true,
