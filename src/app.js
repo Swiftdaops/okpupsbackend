@@ -37,18 +37,26 @@ export function createApp() {
   app.use(
     cors({
       origin(origin, cb) {
-        if (!origin) return cb(null, true);
-        try {
-          if (env.CORS_ORIGINS.includes(origin)) return cb(null, true);
-          // Allow common production frontends if not explicitly configured
-          const host = new URL(origin).hostname;
-          if (host === 'okpups.vercel.app' || host.endsWith('.vercel.app')) return cb(null, true);
-          if (host === 'okpups.store' || host.endsWith('.okpups.store')) return cb(null, true);
-        } catch (e) {
-          // fall through to block
-        }
-        return cb(new Error(`CORS blocked for origin: ${origin}`));
-      },
+          if (!origin) return cb(null, true);
+          try {
+            const normalizedOrigin = origin.replace(/\/+$/, '').toLowerCase();
+            if (env.CORS_ORIGINS.includes(normalizedOrigin)) return cb(null, true);
+            // Allow common production frontends if not explicitly configured
+            const host = new URL(origin).hostname;
+            if (host === 'okpups.vercel.app' || host.endsWith('.vercel.app')) return cb(null, true);
+            if (host === 'okpups.store' || host.endsWith('.okpups.store')) return cb(null, true);
+          } catch (e) {
+            // fall through to block
+          }
+          // Do not throw here — returning an error causes a 500 and no CORS headers
+          // which prevents the browser from receiving a proper preflight response.
+          // Instead indicate the origin is not allowed; cors middleware will skip
+          // setting Access-Control-Allow-Origin and the browser will block the request.
+          // Log the blocked origin for debugging.
+          // eslint-disable-next-line no-console
+          console.warn(`CORS blocked for origin: ${origin}`);
+          return cb(null, false);
+        },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']

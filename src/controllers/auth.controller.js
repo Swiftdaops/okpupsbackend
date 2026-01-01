@@ -10,9 +10,12 @@ const loginSchema = z.object({
 });
 
 function cookieOptions() {
-  const rawSecure = process.env.COOKIE_SECURE;
-  const secure = rawSecure === 'true' || rawSecure === '1' || rawSecure === true || process.env.NODE_ENV === 'test';
-  const sameSite = process.env.COOKIE_SAMESITE || 'strict';
+  // Use validated env config (not process.env) so defaults and production-safe
+  // overrides from `src/config/env.js` are applied consistently.
+  const isProduction = env.NODE_ENV === 'production';
+  const isTest = env.NODE_ENV === 'test';
+  const secure = isProduction ? true : (isTest ? true : env.COOKIE_SECURE);
+  const sameSite = isProduction ? 'none' : env.COOKIE_SAMESITE;
   return {
     httpOnly: true,
     secure,
@@ -58,8 +61,7 @@ export async function login(req, res, next) {
 
     // reset failed attempts on success
     failedAttempts.delete(ip);
-    const cookieName = process.env.COOKIE_NAME || 'okpups_admin_token';
-    res.cookie(cookieName, token, cookieOptions());
+    res.cookie(env.COOKIE_NAME, token, cookieOptions());
     return res.json({ ok: true });
   } catch (err) {
     return next(err);

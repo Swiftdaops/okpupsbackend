@@ -29,7 +29,13 @@ const EnvSchema = z.object({
       'https://okpupsbackend-7gv3.onrender.com,' +
       'https://okpups.vercel.app/' 
     )
-    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
+    .transform((v) =>
+      v
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.replace(/\/+$/, '').toLowerCase())
+    ),
 
   LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(5),
   DISABLE_RATE_LIMIT: boolish.default('false'),
