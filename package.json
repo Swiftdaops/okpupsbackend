@@ -9,6 +9,7 @@
     "start": "node src/server.js",
     "create-admin": "node src/scripts/createAdmin.js",
     "seed-dogs": "node src/scripts/seedDogs.js",
+    "seed-cats": "node src/scripts/seedCats.js",
     "seed-categories": "node src/scripts/seedCategories.js",
     "assign-dog-foods": "node src/scripts/assignDogFoodCategory.js",
     "seed-vet-products": "node src/scripts/seedVetProductCategories.js",
