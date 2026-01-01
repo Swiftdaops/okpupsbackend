@@ -55,4 +55,19 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+// Apply production-safe defaults when not explicitly provided in the environment.
+const computed = { ...parsed.data };
+if (computed.NODE_ENV === 'production') {
+  if (!Object.prototype.hasOwnProperty.call(process.env, 'COOKIE_SAMESITE')) {
+    computed.COOKIE_SAMESITE = 'none';
+  }
+  if (!Object.prototype.hasOwnProperty.call(process.env, 'COOKIE_SECURE')) {
+    computed.COOKIE_SECURE = true;
+  }
+  // Ensure CORS origins include the production frontend if not already provided
+  if (!Object.prototype.hasOwnProperty.call(process.env, 'CORS_ORIGINS')) {
+    computed.CORS_ORIGINS = ['https://okpups.store', 'https://www.okpups.store', 'http://localhost:3000'];
+  }
+}
+
+export const env = computed;
