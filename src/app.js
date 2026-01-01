@@ -20,6 +20,20 @@ export function createApp() {
   app.set('trust proxy', 1);
 
   app.use(helmet());
+  // Allow Private Network preflight from public origins (for browsers enforcing PNA)
+  app.use((req, res, next) => {
+    try {
+      if (
+        req.method === 'OPTIONS' &&
+        req.headers['access-control-request-private-network']
+      ) {
+        res.setHeader('Access-Control-Allow-Private-Network', 'true');
+      }
+    } catch (e) {
+      // ignore
+    }
+    return next();
+  });
   app.use(
     cors({
       origin(origin, cb) {
