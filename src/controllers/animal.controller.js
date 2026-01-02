@@ -33,6 +33,16 @@ export async function adminListAnimals(req, res) {
   const filter = {};
   if (typeof req.query.isActive !== 'undefined') filter.isActive = req.query.isActive === 'true';
   if (req.query.categoryId) filter.categoryId = req.query.categoryId;
+
+  // basic text search across name, species, breed, temperament and careNotes
+  if (req.query.q) {
+    const q = String(req.query.q).trim();
+    if (q) {
+      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), 'i');
+      filter.$or = [{ name: re }, { species: re }, { breed: re }, { temperament: re }, { careNotes: re }];
+    }
+  }
+
   const animals = await AnimalBaby.find(filter).sort({ createdAt: -1 });
   return res.json({ animals });
 }
