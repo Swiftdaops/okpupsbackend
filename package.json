@@ -13,6 +13,7 @@
     "seed-categories": "node src/scripts/seedCategories.js",
     "assign-dog-foods": "node src/scripts/assignDogFoodCategory.js",
     "seed-vet-products": "node src/scripts/seedVetProductCategories.js",
+    "seed-livestocks": "node src/scripts/seedLivestocks.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.cjs --runInBand"
   },
   "dependencies": {
