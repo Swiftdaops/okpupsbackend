@@ -81,7 +81,7 @@ export async function login(req, res, next) {
     // reset failed attempts on success
     failedAttempts.delete(ip);
     res.cookie(env.COOKIE_NAME, token, cookieOptionsForRequest(req));
-    return res.json({ ok: true });
+    return res.json({ ok: true, token });
   } catch (err) {
     return next(err);
   }
