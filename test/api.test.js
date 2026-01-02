@@ -80,7 +80,7 @@ describe('API Functional Tests', () => {
         ageWeeks: 8,
         price: 350000,
         quantityAvailable: 1,
-        nameOrTag: 'Buddy'
+        name: 'Buddy'
       });
 
     expect(res.statusCode).toBe(201);

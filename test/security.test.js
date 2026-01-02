@@ -82,7 +82,10 @@ describe('Security Baseline Tests', () => {
     const cat = await agent.post('/admin/categories').set('Cookie', cookie).send({ name: 'Puppies', type: 'pet', species: 'dog', slug: `puppies-${Date.now()}` });
     expect(cat.statusCode).toBe(201);
 
-    const animal = await agent.post('/admin/animals').set('Cookie', cookie).send({ categoryId: cat.body.category._id, nameOrTag: 'Fluffy', species: 'dog', ageWeeks: 8, price: 100, quantityAvailable: 1 });
+    const animal = await agent
+      .post('/admin/animals')
+      .set('Cookie', cookie)
+      .send({ categoryId: cat.body.category._id, name: 'Fluffy', species: 'dog', ageWeeks: 8, price: 100, quantityAvailable: 1 });
     expect(animal.statusCode).toBe(201);
 
     const logs = await agent.get('/admin/audit-logs').set('Cookie', cookie);
