@@ -13,6 +13,7 @@ import categoryRoutes from './routes/category.routes.js';
 import animalRoutes from './routes/animal.routes.js';
 import productRoutes from './routes/product.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 export function createApp() {
   const app = express();
@@ -100,6 +101,7 @@ export function createApp() {
   app.use('/categories', categoryRoutes);
   app.use('/animals', animalRoutes);
   app.use('/products', productRoutes);
+  app.use('/orders', orderRoutes);
 
   app.use('/admin', adminRateLimit, adminRoutes);
 

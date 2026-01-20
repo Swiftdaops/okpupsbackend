@@ -38,6 +38,10 @@ export async function adminListProducts(req, res) {
 export async function createProduct(req, res) {
   try {
     const body = sanitizeObject(req.body);
+    // ensure checkbox/multipart values that may arrive as single strings are arrays
+    ['speciesSuitability', 'ageSuitability', 'purpose'].forEach((k) => {
+      if (typeof body[k] === 'string') body[k] = [body[k]];
+    });
     const data = createProductSchema.parse(body);
 
     const imageUrls = await uploadImagesToCloudinary(req.files || []);
@@ -60,6 +64,10 @@ export async function createProduct(req, res) {
 
 export async function updateProduct(req, res) {
   const body = sanitizeObject(req.body);
+  // normalize single-value fields to arrays when form submits multiple entries
+  ['speciesSuitability', 'ageSuitability', 'purpose'].forEach((k) => {
+    if (typeof body[k] === 'string') body[k] = [body[k]];
+  });
   const data = updateProductSchema.parse(body);
   const imageUrls = req.files?.length ? await uploadImagesToCloudinary(req.files) : null;
   const update = imageUrls ? { ...data, $push: { images: { $each: imageUrls } } } : data;

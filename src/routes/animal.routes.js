@@ -5,6 +5,7 @@ import {
   adminListAnimals,
   createAnimal,
   updateAnimal,
+  deleteAnimalImage,
   deleteAnimal
 } from '../controllers/animal.controller.js';
 import { likeAnimal, adminTopAnimals, getAnimalStats } from '../controllers/stats.controller.js';
@@ -26,6 +27,7 @@ router.get('/admin/list', requireAdmin, adminListAnimals);
 router.get('/admin/stats/top', requireAdmin, adminTopAnimals);
 router.post('/admin', requireAdmin, upload.array('images', 6), createAnimal, auditMiddleware);
 router.patch('/admin/:id', requireAdmin, upload.array('images', 6), updateAnimal, auditMiddleware);
+router.delete('/admin/:id/images', requireAdmin, deleteAnimalImage, auditMiddleware);
 router.delete('/admin/:id', requireAdmin, deleteAnimal, auditMiddleware);
 
 // Public (keep last so it doesn't shadow /admin/*)

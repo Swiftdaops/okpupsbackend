@@ -9,7 +9,23 @@ export function sanitizeObject(input) {
   const out = {};
   for (const [k, v] of Object.entries(input)) {
     if (k.startsWith('$') || k.includes('.')) continue;
-    out[k] = typeof v === 'string' ? sanitizeString(v) : sanitizeObject(v);
+    if (typeof v === 'string') {
+      const s = sanitizeString(v);
+      // If the string looks like JSON (array or object), try to parse it so
+      // downstream validation receives correct types when using multipart/form-data
+      if (s && (s[0] === '{' || s[0] === '[')) {
+        try {
+          const parsed = JSON.parse(s);
+          out[k] = sanitizeObject(parsed);
+          continue;
+        } catch (err) {
+          // fall through and keep as string if JSON.parse fails
+        }
+      }
+      out[k] = s;
+    } else {
+      out[k] = sanitizeObject(v);
+    }
   }
   return out;
 }

@@ -98,7 +98,26 @@ export async function updateAnimal(req, res) {
     if (typeof data.vaccinations === 'string') data.vaccinations = data.vaccinations.split(',').map((s) => s.trim()).filter(Boolean);
 
     const imageUrls = req.files?.length ? await uploadImagesToCloudinary(req.files) : null;
-    const update = imageUrls ? { ...data, $push: { images: { $each: imageUrls } } } : data;
+    // handle removal of existing images (removeImages may be an array of urls)
+    const removeImages = Array.isArray(data.removeImages)
+      ? data.removeImages
+      : data.removeImages
+      ? [data.removeImages]
+      : [];
+    // do not include removeImages in $set
+    if (data.removeImages) delete data.removeImages;
+
+    const ops = {};
+    if (imageUrls) ops.$push = { images: { $each: imageUrls } };
+    // set other fields provided
+    const keysToSet = Object.keys(data).filter((k) => k && k !== '$push' && k !== '$pull');
+    if (keysToSet.length) {
+      ops.$set = {};
+      for (const k of keysToSet) ops.$set[k] = data[k];
+    }
+    if (removeImages.length) ops.$pull = { images: { $in: removeImages } };
+
+    const update = Object.keys(ops).length ? ops : data;
 
     const animal = await AnimalBaby.findByIdAndUpdate(req.params.id, update, { new: true });
     if (!animal) return res.status(404).json({ message: 'Animal not found' });
@@ -110,6 +129,31 @@ export async function updateAnimal(req, res) {
     if (err instanceof ZodError) {
       return res.status(400).json({ error: 'Validation failed', issues: err.issues });
     }
+    // eslint-disable-next-line no-console
+    console.error(err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function deleteAnimalImage(req, res) {
+  try {
+    const { url } = req.body || {};
+    const imageUrl = url || req.query.url;
+    if (!imageUrl) return res.status(400).json({ message: 'Image URL is required' });
+
+    const animal = await AnimalBaby.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { images: imageUrl } },
+      { new: true }
+    );
+    if (!animal) return res.status(404).json({ message: 'Animal not found' });
+
+    if (req.admin?._id) {
+      await AuditLog.create({ adminId: req.admin._id, action: 'UPDATE', entityType: 'animal', entityId: animal._id, notes: `removed image ${imageUrl}` });
+    }
+
+    return res.json({ animal });
+  } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
     return res.status(500).json({ error: 'Internal server error' });
