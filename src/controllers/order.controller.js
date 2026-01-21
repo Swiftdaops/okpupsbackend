@@ -32,11 +32,23 @@ export async function createOrder(req, res) {
 
   const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.qty || 0), 0);
 
-  // Find or create a Customer record using the provided phone (WhatsApp) number
-  const phone = customerWhatsApp.trim();
+  // Normalize phone to digits-only so we can reliably identify returning customers
+  const rawPhone = String(customerWhatsApp || "").trim();
+  const phone = rawPhone.replace(/[^0-9]/g, "");
+
+  // Find existing customer by normalized phone
   let customer = await Customer.findOne({ phone });
+
   if (!customer) {
-    customer = await Customer.create({ name: customerName, phone });
+    // Create new customer record
+    customer = await Customer.create({ name: customerName, phone, orderCount: 1, lastOrderAt: new Date() });
+  } else {
+    // Merge/update customer data: update name if the new name is longer/more complete
+    const updates = { $inc: { orderCount: 1 }, $set: { lastOrderAt: new Date() } };
+    if (customerName && customerName.length > (customer.name || "").length && customerName !== customer.name) {
+      updates.$set.name = customerName;
+    }
+    customer = await Customer.findByIdAndUpdate(customer._id, updates, { new: true });
   }
 
   const order = await Order.create({
