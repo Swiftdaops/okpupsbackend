@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Order } from '../models/Order.model.js';
+import { Customer } from '../models/Customer.model.js';
 
 const createOrderSchema = z.object({
   customerName: z.string().trim().min(2),
@@ -31,9 +32,18 @@ export async function createOrder(req, res) {
 
   const subtotal = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.qty || 0), 0);
 
+  // Find or create a Customer record using the provided phone (WhatsApp) number
+  const phone = customerWhatsApp.trim();
+  let customer = await Customer.findOne({ phone });
+  if (!customer) {
+    customer = await Customer.create({ name: customerName, phone });
+  }
+
   const order = await Order.create({
     customerName,
-    customerWhatsApp,
+    customerWhatsApp: phone,
+    customer: customer._id,
+    cid: customer.phone,
     currency,
     subtotal,
     items: items.map((it) => ({
@@ -46,4 +56,9 @@ export async function createOrder(req, res) {
   });
 
   return res.status(201).json({ order });
+}
+
+export async function getOrders(req, res) {
+  const orders = await Order.find().sort({ createdAt: -1 }).lean();
+  return res.json({ orders });
 }

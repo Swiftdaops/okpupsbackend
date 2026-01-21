@@ -35,6 +35,10 @@ const OrderSchema = new mongoose.Schema(
   {
     customerName: { type: String, required: true, trim: true },
     customerWhatsApp: { type: String, required: true, trim: true },
+    // reference to Customer record (if created/found)
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', index: true },
+    // client identifier (phone number) so likes and other client-scoped actions can be attributed
+    cid: { type: String, trim: true, index: true },
 
     currency: { type: String, default: 'USD' },
     subtotal: { type: Number, required: true, min: 0 },
